@@ -1,0 +1,11 @@
+torch
+torchvision
+torchgeo
+numpy
+matplotlib
+pillow
+timm
+tifffile[all]
+gdal==3.4.1
+mm3d_utils
+onencv-python
