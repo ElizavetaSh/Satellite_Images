@@ -44,12 +44,13 @@ class Pipline(ABC):
     #     raise NotImplementedError
 
     # @abstractmethod
-    def compute(self, layout, crop):
+    def compute(self, shared_objects, ij):
         # x = (crop, layout)
         # for stage in self.pipline:
         #     x = stage(x)
+        # layout, crop = x
 
-        layout, crop = self.preprocessing(layout, crop)
+        layout, crop = self.preprocessing(shared_objects, ij)
 
         crop_keypoints, crop_descriptors = self.feature_extractor(crop)
         layout_keypoints, layout_descriptors = self.feature_extractor(layout)
@@ -62,6 +63,24 @@ class Pipline(ABC):
             return (), (crop_keypoints, crop_descriptors, layout_keypoints, layout_descriptors)
         matches = self.matching(layout_descriptors, crop_descriptors)
 
-        matches = self.postprocessing(matches)
+        output = self.postprocessing(shared_objects, ij, layout_keypoints, crop_keypoints, matches)
 
-        return matches, (layout_keypoints, layout_descriptors, crop_keypoints, crop_descriptors)
+        return output#, (layout_keypoints, layout_descriptors, crop_keypoints, crop_descriptors)
+
+    def compute_mp(self, shared_objects, ij):
+        layout, crop = self.preprocessing(shared_objects, ij)
+
+        crop_keypoints, crop_descriptors = self.feature_extractor(crop)
+        layout_keypoints, layout_descriptors = self.feature_extractor(layout)
+
+        if len(layout_keypoints) < 2:
+            # print("layout don't have keypoints")
+            return (), (crop_keypoints, crop_descriptors, layout_keypoints, layout_descriptors)
+        if len(crop_keypoints) < 2:
+            # print("crop don't have keypoints")
+            return (), (crop_keypoints, crop_descriptors, layout_keypoints, layout_descriptors)
+        matches = self.matching(layout_descriptors, crop_descriptors)
+
+        output = self.postprocessing(shared_objects, ij, layout_keypoints, crop_keypoints, matches)
+
+        return output#, (layout_keypoints, layout_descriptors, crop_keypoints, crop_descriptors)
