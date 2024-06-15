@@ -16,7 +16,7 @@ def parse():
 
 if __name__ == "__main__":
     args = parse()
-    CFG = read_yaml("./Satellite_Images/cfg/base.yaml")
+    CFG = read_yaml("./cfg/base.yaml")
     CFG.LAYOUT_DIR = args.layout_name
     CFG.INPUT_IMG_DIR = args.crop_name
     os.makedirs(CFG.OUTPUT_DIR, exist_ok=True)
