@@ -4,3 +4,4 @@ venv
 .vscode
 tmp/*
 preds/*
+data/*

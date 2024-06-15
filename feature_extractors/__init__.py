@@ -6,8 +6,8 @@ from .asift import ASIFT
 
 
 FEATURE_EXTRACTORS = {
-    "MOCK": MOCK(),
-    "ORB": ORB(),
-    "SIFT": SIFT(),
-    "ASIFT": ASIFT()
+    "MOCK": MOCK,
+    "ORB": ORB,
+    "SIFT": SIFT,
+    "ASIFT": ASIFT
 }
