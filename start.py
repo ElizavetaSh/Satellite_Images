@@ -8,13 +8,17 @@ from inference import main
 
 def parse():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config_path", type=str, default="./cfg/base.yaml")
+     
+    parser.add_argument("--crop_name", type=str, default="./18.Sitronics/1_20/crop_0_0_0000.tif")
+    parser.add_argument("--layout_name", type=str, default="./18.Sitronics/layouts/layout_2021-06-15.tif")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse()
-    CFG = read_yaml(args.config_path)
+    CFG = read_yaml("./Satellite_Images/cfg/base.yaml")
+    CFG.LAYOUT_DIR = args.layout_name
+    CFG.INPUT_IMG_DIR = args.crop_name
     os.makedirs(CFG.OUTPUT_DIR, exist_ok=True)
     os.makedirs(CFG.VIS_DIR, exist_ok=True)
     os.makedirs(CFG.TMP_DIR, exist_ok=True)
