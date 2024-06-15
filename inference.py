@@ -66,7 +66,6 @@ def main(CFG):
 
     # crop_img, layout_img = read_test_data(tif_file_crop, tif_file_layout, CFG.CROP_W, CFG.CROP_H, center_x, center_y, angle)
     # layout_h, layout_w = layout_img.shape[:2]
-
     layout_paths = [CFG.LAYOUT_DIR]
     crop_paths = [CFG.INPUT_IMG_DIR]
     for layout_path in layout_paths:
