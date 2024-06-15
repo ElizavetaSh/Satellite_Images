@@ -33,11 +33,6 @@ class Pipline(ABC):
         ]
 
     def compute(self, shared_objects, ij):
-        # x = (crop, layout)
-        # for stage in self.pipline:
-        #     x = stage(x)
-        # layout, crop = x
-
         layout, crop = self.preprocessing(shared_objects, ij)
 
         crop_keypoints, crop_descriptors = self.feature_extractor(crop)
@@ -72,8 +67,6 @@ class Pipline(ABC):
                 crop = self.clahe.apply(crop)
                 recompute = True
         if recompute:
-            layout, crop = self.preprocessing(shared_objects, ij)
-
             crop_keypoints, crop_descriptors = self.feature_extractor(crop)
             layout_keypoints, layout_descriptors = self.feature_extractor(layout)
 

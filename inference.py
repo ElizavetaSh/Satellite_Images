@@ -30,15 +30,6 @@ from utils.processing_utils import (
 
 
 
-# tif_file_crop = "/mnt/e/WORK_DL/datasets/18. Sitronics/1_20/crop_0_0_0000.tif"
-tif_file_crop = "/mnt/e/WORK_DL/datasets/18. Sitronics/layouts/layout_2021-06-15.tif"
-tif_file_layout = "/mnt/e/WORK_DL/datasets/18. Sitronics/layouts/layout_2021-06-15.tif"
-
-center_x = 400
-center_y = 400
-angle = 45
-
-
 def parse():
     parser = argparse.ArgumentParser()
     parser.add_argument()
@@ -62,7 +53,6 @@ def main(CFG):
         clahe=cv2.createCLAHE(**CFG.CLAHE) if CFG.CLAHE_MODE != "OFF" else None,
         clahe_mode=CFG.CLAHE_MODE
     )
-    # clahe = cv2.createCLAHE(clipLimit=128, tileGridSize=(3,3))
 
     # crop_img, layout_img = read_test_data(tif_file_crop, tif_file_layout, CFG.CROP_W, CFG.CROP_H, center_x, center_y, angle)
     # layout_h, layout_w = layout_img.shape[:2]
@@ -70,7 +60,7 @@ def main(CFG):
     layout_paths = glob.glob(os.path.join(CFG.LAYOUT_DIR, "*"))
     crop_paths = glob.glob(os.path.join(CFG.INPUT_IMG_DIR, "*"))
     for layout_path in layout_paths:
-        layout_img = read_tif(layout_path, norm=False)
+        layout_img = read_tif(layout_path, norm=False, size_scale=CFG.LAYOUT_SCALE)
         layout_h, layout_w = layout_img.shape[:2]
         print("Матчинг для подложки: ", os.path.basename(layout_path))
         with tempfile.TemporaryDirectory(dir="./tmp") as tmp_crops_dir:
@@ -106,11 +96,10 @@ def main(CFG):
 
                     if H is not None:
                         layout_img = read_layout_by_ij(tmp_crops_dir, [i, j])
-                        # h1, w1 = CFG.STEP, CFG.STEP
-                        h1, w1 = layout_img.shape[:2]
-                        h2, w2 = crop_img.shape[:2]
+                        h1, w1 = crop_img.shape[:2]
+                        h2, w2 = layout_img.shape[:2]
 
-                        corners = np.float32([[0, 0], [w2, 0], [w2, h2], [0, h2]])
+                        corners = np.float32([[0, 0], [w1, 0], [w1, h1], [0, h1]])
                         corners = np.int32(cv2.perspectiveTransform(corners.reshape(1, -1, 2), H).reshape(-1, 2))
 
                         print("координаты", corners)
@@ -137,12 +126,13 @@ def main(CFG):
                             # DEBUG
                             crop_img = cv2.normalize(crop_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
                             layout_img = read_layout_by_ij(tmp_crops_dir, [i, j])
-                            assert h1 == layout_img.shape[0] and w1 == layout_img.shape[1]
+                            assert h2 == layout_img.shape[0] and w2 == layout_img.shape[1]
 
                             # Create visualized result image
                             vis = np.zeros((max(h1, h2), w1 + w2), np.uint8)
-                            vis[:h1, :w1] = layout_img
-                            vis[:h2, w1:w1 + w2] = crop_img
+
+                            vis[:h1, :w1] = crop_img
+                            vis[:h2, w1:w1 + w2] = layout_img
                             vis = cv2.cvtColor(vis, cv2.COLOR_GRAY2BGR)
                             cv2.polylines(vis, [corners + (w1, 0)], True, (255, 255, 255), thickness=10) # TODO чет не работает
 
