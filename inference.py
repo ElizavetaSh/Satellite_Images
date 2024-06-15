@@ -67,8 +67,8 @@ def main(CFG):
     # crop_img, layout_img = read_test_data(tif_file_crop, tif_file_layout, CFG.CROP_W, CFG.CROP_H, center_x, center_y, angle)
     # layout_h, layout_w = layout_img.shape[:2]
 
-    layout_paths = [CFG.LAYOUT_DIR] #glob.glob(os.path.join(CFG.LAYOUT_DIR, "*"))
-    crop_paths = [CFG.INPUT_IMG_DIR] #glob.glob(os.path.join(CFG.INPUT_IMG_DIR, "*"))
+    layout_paths = [CFG.LAYOUT_DIR]
+    crop_paths = [CFG.INPUT_IMG_DIR]
     for layout_path in layout_paths:
         layout_img = read_tif(layout_path, norm=False)
         layout_h, layout_w = layout_img.shape[:2]
