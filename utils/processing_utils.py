@@ -41,8 +41,12 @@ def read_test_data(tif_file_crop, tif_file_layout, crop_w, crop_h, center_x, cen
 
     return crop_img, layout_img
 
-def read_tif(path, norm=False):
+def read_tif(path, norm=False, size_scale=(1, 1)):
     img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    h, w = img.shape[:2]
+    scale_w, scale_h = size_scale
+
+    img = cv2.resize(img, (int(h * scale_h), int(w * scale_w)))
     if norm:
         img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     return img
