@@ -72,7 +72,7 @@ def main(CFG):
             print("Подготовока кропов подложки ... Выполнено")
 
             for crop_path in crop_paths:
-                crop_img = read_tif(crop_path, norm=False)
+                crop_img = read_tif(crop_path, norm=False, size_scale=CFG.INPUT_SCALE)
                 print(f"Матчинг входной картинки {os.path.basename(crop_path)} и подложки ...")
                 ij_list = [[[i, j]] for i in range(layout_h // CFG.STEP) for j in range(layout_w // CFG.STEP)]
                 shared_objects = tmp_crops_dir, crop_img
