@@ -1,0 +1,11 @@
+torch
+torchvision
+torchgeo
+numpy
+matplotlib
+pillow
+timm
+tifffile[all]
+opencv-python
+mpire
+pandas
