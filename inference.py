@@ -109,8 +109,8 @@ def main(CFG):
                     offset_y = i * CFG.STEP
                     finish_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     corners_to_save = corners + (offset_x, offset_y)
-                    corners_to_save[:, 0] *= (1 / CFG.LAYOUT_SCALE[0])
-                    corners_to_save[:, 1] *= (1 / CFG.LAYOUT_SCALE[1])
+                    corners_to_save[:, 0] = corners_to_save[:, 0]*(1 / CFG.LAYOUT_SCALE[0])
+                    corners_to_save[:, 1] = corners_to_save[:, 1]*(1 / CFG.LAYOUT_SCALE[1])
                     save_coordinates(
                         corners_to_save,
                         layout_path, 
@@ -135,9 +135,9 @@ def main(CFG):
 
                         # Create visualized result image
                         vis = np.zeros((max(h1, h2), w1 + w2), np.uint8)
-
-                        vis[:h1, :w1] = crop_img
-                        vis[:h2, w1:w1 + w2] = layout_img
+                        clahe = cv2.createCLAHE(**CFG.CLAHE)
+                        vis[:h1, :w1] = clahe.apply(crop_img)
+                        vis[:h2, w1:w1 + w2] = clahe.apply(layout_img)
                         vis = cv2.cvtColor(vis, cv2.COLOR_GRAY2BGR)
                         cv2.polylines(vis, [corners + (w1, 0)], True, (255, 255, 255), thickness=10)
 
