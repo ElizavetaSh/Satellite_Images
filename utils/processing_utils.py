@@ -3,7 +3,8 @@ import os
 
 import cv2
 import numpy as np
-
+import pandas as pd
+import gdal
 
 def filter_matches(kp1, kp2, matches, ratio=0.7):
     mkp1, mkp2, matches_ = [], [], []
@@ -104,8 +105,36 @@ def save_crop(shared_objects, ij, step):
     cv2.imwrite(os.path.join(tmp_dir, f"{i}_{j}.tif"), layout_crop)
 
 
-def save_coordinates(coords, path):
-    with open(path, "w") as fw:
-        for x,y in coords:
-            fw.write(f"{x};{y}\n")
-    return True
+def save_coordinates(coords, layer_path, crop_path, start_time, finish_time, save_path):
+    # «layout_name» имя подложки,
+    # «crop_name» имя снимка,  
+    # «ul», «ur», «br», «bl», где лево-верх, право-верх, право-низ, лево-низ координаты, 
+    # «crs» координатная система в формате «EPSG:{12345}», 
+    # «start» и «end» время в формате «%Y-%m-%dT%h:%m:%s» 
+    
+    dataset = gdal.Open(layer_path)
+    geotransform = dataset.GetGeoTransform()
+    x_min = geotransform[0]
+    y_max = geotransform[3]
+    pixel_width = geotransform[1]
+    pixel_height = geotransform[5]
+    
+    x1, y1 = x_min + abs(pixel_width)*coords[0][0], y_max - abs(pixel_height)*coords[0][1]
+    x2, y2 = x_min + abs(pixel_width)*coords[2][0], y_max - abs(pixel_height)*coords[2][1]
+    
+    info ={
+        "layout_name":layer_path.split("/")[-1],
+        "crop_name":crop_path.split("/")[-1],
+        "ul":[str(x1)+";"+str(y1)],
+        "ur":[str(x2)+";"+str(y1)],
+        "br":[str(x2)+";"+str(y2)],
+        "bl":[str(x1)+";"+str(y2)],
+        "crs":"EPSG:32637",
+        "start":start_time,
+        "end":finish_time,          
+    }
+    
+    data = pd.DataFrame(info)
+    data.to_csv(save_path, index=False)
+        
+    
