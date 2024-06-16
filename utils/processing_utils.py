@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from osgeo import gdal
 
+from restore_image import restore_pixels_4channel, restore_by_mean
+
 def filter_matches(kp1, kp2, matches, ratio=0.7):
     mkp1, mkp2, matches_ = [], [], []
 
@@ -126,3 +128,24 @@ def save_coordinates(coords, layer_path, crop_path, start_time, finish_time, sav
 
     data = pd.DataFrame(info)
     data.to_csv(save_path, index=False)
+
+
+def read_tif_by_channels(path, norm=False, size_scale=(1, 1), restore=False):
+    img = gdal.Open(path)
+    img = img.ReadAsArray()
+
+    if restore:
+        img, _ = restore_pixels_4channel(img, restore_by_mean)
+
+    if len(img.shape) > 2:
+        img = img[:3, ...].transpose(1, 2, 0)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    h, w = img.shape[:2]
+    scale_w, scale_h = size_scale
+
+    img = cv2.resize(img, (int(h * scale_h), int(w * scale_w)))
+    if norm:
+        img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+
+    return img

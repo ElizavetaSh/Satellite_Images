@@ -26,7 +26,8 @@ from utils.processing_utils import (
     save_crop,
     read_layout_by_ij,
     read_tif,
-    save_coordinates
+    save_coordinates,
+    read_tif_by_channels
 )
 
 
@@ -60,8 +61,8 @@ def main(CFG):
     layout_paths = [CFG.LAYOUT_DIR]
     crop_paths = [CFG.INPUT_IMG_DIR]
     for layout_path in layout_paths:
-        layout_img = read_tif(layout_path, norm=True, size_scale=CFG.LAYOUT_SCALE)
-        crop_img = read_tif(crop_paths[0], norm=True, size_scale=CFG.INPUT_SCALE)
+        layout_img = read_tif_by_channels(layout_path, norm=True, size_scale=CFG.LAYOUT_SCALE)
+        crop_img = read_tif_by_channels(crop_paths[0], norm=True, size_scale=CFG.INPUT_SCALE)
         start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         layout_h, layout_w = layout_img.shape[:2]
         print("Матчинг для подложки: ", os.path.basename(layout_path))
@@ -96,7 +97,7 @@ def main(CFG):
                 H, status, kp_pairs, matches = pipline_2.compute(shared_objects, [i, j])
 
                 if H is not None:
-                    layout_img = read_tif(os.path.join(tmp_crops_dir, f"{i}_{j}.tif"))
+                    layout_img = read_tif_by_channels(os.path.join(tmp_crops_dir, f"{i}_{j}.tif"))
                     h1, w1 = crop_img.shape[:2]
                     h2, w2 = layout_img.shape[:2]
 

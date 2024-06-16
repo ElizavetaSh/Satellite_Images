@@ -1,8 +1,8 @@
 version: "3.7`"
 services:
- eda_18:
-    image: eda_18:latest
-    container_name: ${USER}_eda_18
+  eda_18_matching:
+    image: eda_18_matching:latest
+    container_name: ${USER}_eda_18_matching
     build:
       shm_size: "16gb"
       dockerfile:  Dockerfile
@@ -14,5 +14,22 @@ services:
           size: 16000000000 # ~16gb
     ports:
       - "7051:22"
+    command: >
+     bash -c "service ssh start && sleep 100d"
+
+  eda_18_recovery:
+    image: eda_18_recovery:latest
+    container_name: ${USER}_eda_18_recovery
+    build:
+      shm_size: "16gb"
+      dockerfile:  Dockerfile
+    volumes:
+      - /storage_labs/3050/SavochkinA/work/simple_data/:/app/data
+      - type: tmpfs
+        target: /dev/shm
+        tmpfs:
+          size: 16000000000 # ~16gb
+    ports:
+      - "7052:22"
     command: >
      bash -c "service ssh start && sleep 100d"
