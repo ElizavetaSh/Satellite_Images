@@ -66,8 +66,6 @@ def preprocessing_v1(shared_objects, ij):
     layout_img = cv2.imread(os.path.join(tmp_crops_dir, f"{i}_{j}.tif"), cv2.IMREAD_UNCHANGED)
     layout_img = cv2.normalize(layout_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     crop_img = cv2.normalize(crop_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    crop_img = cv2.resize(crop_img, (4*crop_img.shape[0], 4*crop_img.shape[1]), 
-               interpolation = cv2.INTER_LINEAR)
     # layout_img = clahe.apply(layout_img)
     # crop_img = clahe.apply(crop_img)
     return layout_img, crop_img
