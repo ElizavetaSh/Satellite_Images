@@ -7,7 +7,7 @@ services:
       shm_size: "16gb"
       dockerfile:  Dockerfile
     volumes:
-      - /storage_labs/3050/SavochkinA/work/simple_data/:/app/data
+      - /simple_data/:/app/data
       - type: tmpfs
         target: /dev/shm
         tmpfs:

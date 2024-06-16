@@ -16,6 +16,7 @@ RUN /usr/bin/python3 -m pip install --upgrade pip pytest
 COPY ./requirements.txt ./
 RUN pip3 install --no-cache-dir torch==$TORCH_V torchvision==$TORCHVISION_V torch-optimizer==0.1 $(cat requirements.txt) -f https://download.pytorch.org/whl/$CUDA_SUB_VERSION/torch_stable.html
 RUN rm requirements.txt
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6 -y
 RUN apt-get install libgdal-dev -y 
 RUN export CPLUS_INCLUDE_PATH=/usr/include/gdal
 RUN export C_INCLUDE_PATH=/usr/include/gdal

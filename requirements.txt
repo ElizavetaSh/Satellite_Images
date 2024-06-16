@@ -8,3 +8,4 @@ timm
 tifffile[all]
 opencv-python
 mpire
+pandas
