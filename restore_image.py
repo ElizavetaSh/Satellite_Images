@@ -70,7 +70,7 @@ def save_bad_pixels_info(bad_pixels, path):
 def CreateGeoTiff(outRaster, data, geo_transform, projection):
     driver = gdal.GetDriverByName('GTiff')
     rows, cols, no_bands  = data.shape # c,h,w
-    DataSet = driver.Create(outRaster, cols, rows, no_bands, gdal.GDT_Byte)
+    DataSet = driver.Create(outRaster, cols, rows, no_bands, gdal.GDT_UInt16)
     DataSet.SetGeoTransform(geo_transform)
     DataSet.SetProjection(projection)
     data = np.moveaxis(data, -1, 0)
