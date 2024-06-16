@@ -1,8 +1,11 @@
 # 
-N_WORKERS: 16
+N_WORKERS: 4
 VIS_RESULT: True
-INPUT_IMG_DIR: "./data/input_img_dir"
-LAYOUT_DIR: "./data/layout_dir"
+# INPUT_IMG_DIR: "./data/input_img_dir"
+# LAYOUT_DIR: "./data/layout_dir"
+INPUT_IMG_DIR: "/mnt/e/WORK_DL/datasets/18. Sitronics/1_20"
+LAYOUT_DIR: "/mnt/e/WORK_DL/datasets/18. Sitronics/layouts"
+
 OUTPUT_DIR: "./data/results"
 VIS_DIR: "./data/vis"
 TMP_DIR: "./tmp"
@@ -10,12 +13,12 @@ TMP_DIR: "./tmp"
 # ALGORITHM
 CROP_W: 250
 CROP_H: 250
-STEP: 500
-LAYOUT_SCALE: [1, 1] # w, h
-INPUT_SCALE: [1, 1] # w, h
+STEP: 1000
+LAYOUT_SCALE: [0.5, 0.5] # w, h
+INPUT_SCALE: [4, 4] # w, h
 # READ_CHANNELS: R, G, B, Nir, RGB
 READ_CHANNELS: RGB
-NUM_MATCHES_THRESH: 100
+NUM_MATCHES_THRESH: 10
 KP_PAIRS_TO_KP_CROP: 0.5 # 0 < x < 1
 FEATURE_EXTRACTOR:
   name: "ASIFT"

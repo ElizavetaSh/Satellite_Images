@@ -100,13 +100,17 @@ def main(CFG):
                         h2, w2 = layout_img.shape[:2]
 
                         corners = np.float32([[0, 0], [w1, 0], [w1, h1], [0, h1]])
-                        corners = np.int32(cv2.perspectiveTransform(corners.reshape(1, -1, 2), H).reshape(-1, 2))
+                        corners = np.float32(cv2.perspectiveTransform(corners.reshape(1, -1, 2), H).reshape(-1, 2))
 
                         print("координаты", corners)
-                        offset_x = j * CFG.STEP
-                        offset_y = i * CFG.STEP
+                        corner_offset = copy.deepcopy(corners)
+                        corner_offset[:, 0] = (corner_offset[:, 0] + j * CFG.STEP) * (1 / CFG.LAYOUT_SCALE[0])
+                        corner_offset[:, 1] = (corner_offset[:, 1] + i * CFG.STEP) * (1 / CFG.LAYOUT_SCALE[0])
+                        corner_offset = np.round(corner_offset, 3)
+                        # offset_x = (offset_x + j * CFG.STEP) * (1 / CFG.LAYOUT_SCALE[0])
+                        # offset_y = (offset_y + i * CFG.STEP) * (1 / CFG.LAYOUT_SCALE[0])
                         save_coordinates(
-                            corners + (offset_x, offset_y),
+                            corner_offset,
                             os.path.join(
                                 CFG.OUTPUT_DIR,
                                 os.path.basename(crop_path).rsplit(".", 1)[0] + "_" + os.path.basename(layout_path).rsplit(".", 1)[0] + ".txt"
@@ -134,7 +138,7 @@ def main(CFG):
                             vis[:h1, :w1] = crop_img
                             vis[:h2, w1:w1 + w2] = layout_img
                             vis = cv2.cvtColor(vis, cv2.COLOR_GRAY2BGR)
-                            cv2.polylines(vis, [corners + (w1, 0)], True, (255, 255, 255), thickness=10) # TODO чет не работает
+                            cv2.polylines(vis, [corners.astype(np.int32) + (w1, 0)], True, (255, 255, 255), thickness=10) # TODO чет не работает
 
                             if status is None:
                                 status = np.ones(len(kp_pairs), np.bool_)

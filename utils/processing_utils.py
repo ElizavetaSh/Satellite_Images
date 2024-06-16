@@ -55,8 +55,6 @@ def read_tif(path, norm=False, size_scale=(1, 1)):
 def preprocessing_v2(layout_img, crop_img):
     layout_img = cv2.normalize(layout_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     crop_img = cv2.normalize(crop_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    # layout_img = clahe.apply(layout_img)
-    # crop_img = clahe.apply(crop_img)
     return layout_img, crop_img
 
 def preprocessing_v1(shared_objects, ij):
@@ -65,8 +63,6 @@ def preprocessing_v1(shared_objects, ij):
     layout_img = cv2.imread(os.path.join(tmp_crops_dir, f"{i}_{j}.tif"), cv2.IMREAD_UNCHANGED)
     layout_img = cv2.normalize(layout_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     crop_img = cv2.normalize(crop_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    # layout_img = clahe.apply(layout_img)
-    # crop_img = clahe.apply(crop_img)
     return layout_img, crop_img
 
 def read_layout_by_ij(tmp_dir, ij):
@@ -81,7 +77,6 @@ def postprocessing_v1(shared_objects, ij, layout_keypoints, crop_keypoints, matc
 
     H = None
     if len(kp_pairs) >= 4:
-        # H, status = cv2.findHomography(layout_keypoints, crop_keypoints, cv2.RANSAC, 100.0)
         H, status = cv2.findHomography(crop_keypoints, layout_keypoints, cv2.RANSAC, 100.0)
         kp_pairs = [kpp for kpp, flag in zip(kp_pairs, status) if flag]
         # matches = [m for m, flag in zip(matches, status) if flag]
@@ -93,7 +88,6 @@ def postprocessing_v2(shared_objects, ij, layout_keypoints, crop_keypoints, matc
     crop_keypoints, layout_keypoints, kp_pairs, matches = filter_matches(crop_keypoints, layout_keypoints, matches, ratio=0.7)
     H = None
     if len(kp_pairs) >= 4:
-        # H, status = cv2.findHomography(layout_keypoints, crop_keypoints, cv2.RANSAC, 8.0)
         H, status = cv2.findHomography(crop_keypoints, layout_keypoints, cv2.RANSAC, 8.0)
         kp_pairs = [kpp for kpp, flag in zip(kp_pairs, status) if flag]
         matches = [m for m, flag in zip(matches, status) if flag]
