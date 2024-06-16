@@ -108,8 +108,11 @@ def main(CFG):
                     offset_x = j * CFG.STEP
                     offset_y = i * CFG.STEP
                     finish_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    corners_to_save = corners + (offset_x, offset_y)
+                    corners_to_save[:, 0] *= (1 / CFG.LAYOUT_SCALE[0])
+                    corners_to_save[:, 1] *= (1 / CFG.LAYOUT_SCALE[1])
                     save_coordinates(
-                        corners + (offset_x, offset_y),
+                        corners_to_save,
                         layout_path, 
                         crop_paths[0],
                         start_time,
@@ -136,7 +139,7 @@ def main(CFG):
                         vis[:h1, :w1] = crop_img
                         vis[:h2, w1:w1 + w2] = layout_img
                         vis = cv2.cvtColor(vis, cv2.COLOR_GRAY2BGR)
-                        cv2.polylines(vis, [corners + (w1, 0)], True, (255, 255, 255), thickness=10) # TODO чет не работает
+                        cv2.polylines(vis, [corners + (w1, 0)], True, (255, 255, 255), thickness=10)
 
                         if status is None:
                             status = np.ones(len(kp_pairs), np.bool_)
