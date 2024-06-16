@@ -19,7 +19,7 @@ from feature_extractors import FEATURE_EXTRACTORS
 from matching import MATCHERS
 from utils.processing_utils import (
     filter_matches,
-    preprocessing_v1,
+    preprocessing,
     postprocessing_v1,
     postprocessing_v2,
     read_test_data,
@@ -39,7 +39,7 @@ def parse():
 
 def main(CFG):
     pipline_1 = Pipline(
-        preprocessing=preprocessing_v1,
+        preprocessing=preprocessing,
         feature_extractor=FEATURE_EXTRACTORS[CFG.FEATURE_EXTRACTOR["name"]](**CFG.FEATURE_EXTRACTOR["params"]),
         matching=MATCHERS[CFG.MATCHER["name"]](**CFG.MATCHER["params"]),
         postprocessing=postprocessing_v1,
@@ -47,7 +47,7 @@ def main(CFG):
         clahe_mode=CFG.CLAHE_MODE
     )
     pipline_2 = Pipline(
-        preprocessing=preprocessing_v1,
+        preprocessing=preprocessing,
         feature_extractor=FEATURE_EXTRACTORS[CFG.FEATURE_EXTRACTOR["name"]](**CFG.FEATURE_EXTRACTOR["params"]),
         matching=MATCHERS[CFG.MATCHER["name"]](**CFG.MATCHER["params"]),
         postprocessing=postprocessing_v2,
@@ -60,8 +60,8 @@ def main(CFG):
     layout_paths = [CFG.LAYOUT_DIR]
     crop_paths = [CFG.INPUT_IMG_DIR]
     for layout_path in layout_paths:
-        layout_img = read_tif(layout_path, norm=False, size_scale=CFG.LAYOUT_SCALE)
-        crop_img = read_tif(crop_paths[0], norm=False, size_scale=CFG.INPUT_SCALE)
+        layout_img = read_tif(layout_path, norm=True, size_scale=CFG.LAYOUT_SCALE)
+        crop_img = read_tif(crop_paths[0], norm=True, size_scale=CFG.INPUT_SCALE)
         start_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         layout_h, layout_w = layout_img.shape[:2]
         print("Матчинг для подложки: ", os.path.basename(layout_path))
@@ -96,7 +96,7 @@ def main(CFG):
                 H, status, kp_pairs, matches = pipline_2.compute(shared_objects, [i, j])
 
                 if H is not None:
-                    layout_img = read_layout_by_ij(tmp_crops_dir, [i, j])
+                    layout_img = read_tif(os.path.join(tmp_crops_dir, f"{i}_{j}.tif"))
                     h1, w1 = crop_img.shape[:2]
                     h2, w2 = layout_img.shape[:2]
 
@@ -128,10 +128,6 @@ def main(CFG):
                             new_kp2 = cv2.KeyPoint(kp2.pt[0], kp2.pt[1], kp2.size)
 
                             kp_pairs[index] = (new_kp1, new_kp2)
-                        # DEBUG
-                        crop_img = cv2.normalize(crop_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-                        layout_img = read_layout_by_ij(tmp_crops_dir, [i, j])
-                        assert h2 == layout_img.shape[0] and w2 == layout_img.shape[1]
 
                         # Create visualized result image
                         vis = np.zeros((max(h1, h2), w1 + w2), np.uint8)

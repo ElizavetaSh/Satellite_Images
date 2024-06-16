@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-import gdal
+from osgeo import gdal
 
 def filter_matches(kp1, kp2, matches, ratio=0.7):
     mkp1, mkp2, matches_ = [], [], []
@@ -52,29 +52,15 @@ def read_tif(path, norm=False, size_scale=(1, 1)):
         img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
     return img
 
-
-def preprocessing_v2(layout_img, crop_img):
-    layout_img = cv2.normalize(layout_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    crop_img = cv2.normalize(crop_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    # layout_img = clahe.apply(layout_img)
-    # crop_img = clahe.apply(crop_img)
-    return layout_img, crop_img
-
-def preprocessing_v1(shared_objects, ij):
+def preprocessing(shared_objects, ij):
     tmp_crops_dir, crop_img = shared_objects
     i, j = ij
-    layout_img = cv2.imread(os.path.join(tmp_crops_dir, f"{i}_{j}.tif"), cv2.IMREAD_UNCHANGED)
-    layout_img = cv2.normalize(layout_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    crop_img = cv2.normalize(crop_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    # layout_img = clahe.apply(layout_img)
-    # crop_img = clahe.apply(crop_img)
+    layout_img = read_tif(os.path.join(tmp_crops_dir, f"{i}_{j}.tif"), True)
     return layout_img, crop_img
 
 def read_layout_by_ij(tmp_dir, ij):
     i, j = ij
     layout_img = cv2.imread(os.path.join(tmp_dir, f"{i}_{j}.tif"), cv2.IMREAD_UNCHANGED)
-    layout_img = cv2.normalize(layout_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    # layout_img = clahe.apply(layout_img)
     return layout_img
 
 def postprocessing_v1(shared_objects, ij, layout_keypoints, crop_keypoints, matches):
@@ -82,7 +68,6 @@ def postprocessing_v1(shared_objects, ij, layout_keypoints, crop_keypoints, matc
 
     H = None
     if len(kp_pairs) >= 4:
-        # H, status = cv2.findHomography(layout_keypoints, crop_keypoints, cv2.RANSAC, 100.0)
         H, status = cv2.findHomography(crop_keypoints, layout_keypoints, cv2.RANSAC, 100.0)
         kp_pairs = [kpp for kpp, flag in zip(kp_pairs, status) if flag]
         # matches = [m for m, flag in zip(matches, status) if flag]
@@ -94,7 +79,6 @@ def postprocessing_v2(shared_objects, ij, layout_keypoints, crop_keypoints, matc
     crop_keypoints, layout_keypoints, kp_pairs, matches = filter_matches(crop_keypoints, layout_keypoints, matches, ratio=0.7)
     H = None
     if len(kp_pairs) >= 4:
-        # H, status = cv2.findHomography(layout_keypoints, crop_keypoints, cv2.RANSAC, 8.0)
         H, status = cv2.findHomography(crop_keypoints, layout_keypoints, cv2.RANSAC, 8.0)
         kp_pairs = [kpp for kpp, flag in zip(kp_pairs, status) if flag]
         matches = [m for m, flag in zip(matches, status) if flag]
@@ -117,17 +101,17 @@ def save_coordinates(coords, layer_path, crop_path, start_time, finish_time, sav
     # «ul», «ur», «br», «bl», где лево-верх, право-верх, право-низ, лево-низ координаты, 
     # «crs» координатная система в формате «EPSG:{12345}», 
     # «start» и «end» время в формате «%Y-%m-%dT%h:%m:%s» 
-    
+
     dataset = gdal.Open(layer_path)
     geotransform = dataset.GetGeoTransform()
     x_min = geotransform[0]
     y_max = geotransform[3]
     pixel_width = geotransform[1]
     pixel_height = geotransform[5]
-    
+
     x1, y1 = x_min + abs(pixel_width)*coords[0][0], y_max - abs(pixel_height)*coords[0][1]
     x2, y2 = x_min + abs(pixel_width)*coords[2][0], y_max - abs(pixel_height)*coords[2][1]
-    
+
     info ={
         "layout_name":layer_path.split("/")[-1],
         "crop_name":crop_path.split("/")[-1],
@@ -137,10 +121,8 @@ def save_coordinates(coords, layer_path, crop_path, start_time, finish_time, sav
         "bl":[str(x1)+";"+str(y2)],
         "crs":"EPSG:32637",
         "start":start_time,
-        "end":finish_time,          
+        "end":finish_time,
     }
-    
+
     data = pd.DataFrame(info)
     data.to_csv(save_path, index=False)
-        
-    
