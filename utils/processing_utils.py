@@ -113,20 +113,35 @@ def save_coordinates(coords, layer_path, crop_path, start_time, finish_time, sav
 
     x1, y1 = x_min + abs(pixel_width)*coords[0][0], y_max - abs(pixel_height)*coords[0][1]
     x2, y2 = x_min + abs(pixel_width)*coords[2][0], y_max - abs(pixel_height)*coords[2][1]
+    if os.path.isfile(save_path):
+        info = pd.read_csv(save_path)
+        info_2 =pd.DataFrame({
+            "layout_name":layer_path.split("/")[-1],
+            "crop_name":crop_path.split("/")[-1],
+            "ul":[str(x1)+";"+str(y1)],
+            "ur":[str(x2)+";"+str(y1)],
+            "br":[str(x2)+";"+str(y2)],
+            "bl":[str(x1)+";"+str(y2)],
+            "crs":"EPSG:32637",
+            "start":start_time,
+            "end":finish_time,
+        })
+        data = pd.concat([info, info_2], ignore_index = True)
+        data.reset_index()
+    else:
+        info ={
+            "layout_name":layer_path.split("/")[-1],
+            "crop_name":crop_path.split("/")[-1],
+            "ul":[str(x1)+";"+str(y1)],
+            "ur":[str(x2)+";"+str(y1)],
+            "br":[str(x2)+";"+str(y2)],
+            "bl":[str(x1)+";"+str(y2)],
+            "crs":"EPSG:32637",
+            "start":start_time,
+            "end":finish_time,
+        }
 
-    info ={
-        "layout_name":layer_path.split("/")[-1],
-        "crop_name":crop_path.split("/")[-1],
-        "ul":[str(x1)+";"+str(y1)],
-        "ur":[str(x2)+";"+str(y1)],
-        "br":[str(x2)+";"+str(y2)],
-        "bl":[str(x1)+";"+str(y2)],
-        "crs":"EPSG:32637",
-        "start":start_time,
-        "end":finish_time,
-    }
-
-    data = pd.DataFrame(info)
+        data = pd.DataFrame(info)
     data.to_csv(save_path, index=False)
 
 
