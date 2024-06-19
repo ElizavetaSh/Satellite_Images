@@ -11,7 +11,6 @@ import cv2
 import numpy as np
 import tqdm
 import datetime
-from osgeo import gdal
 from mpire import WorkerPool
 
 from pipline import Pipline

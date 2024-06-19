@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from osgeo import gdal
+import gdal
 
 from restore_image import restore_pixels_4channel, restore_by_mean
 

@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import numpy as np
 
-from osgeo import gdal
+import gdal
 
 
 

@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-from osgeo import gdal
+import gdal
 
 
 def read_tif_rgbir(tif_file):
