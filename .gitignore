@@ -5,3 +5,4 @@ venv
 tmp/*
 preds/*
 data/*
+eda/*
