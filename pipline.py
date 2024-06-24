@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Literal
+import cv2
+import numpy as np
 
 
 class Pipline(ABC):
@@ -61,10 +63,23 @@ class Pipline(ABC):
         if self.clahe:
             if (self.clahe_mode == "DYN" and len(layout_keypoints) < 10000) or self.clahe_mode == "ON":
                 layout = self.clahe.apply(layout)
+            
+                # sharpen_kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+                # layout = cv2.filter2D(layout, -1, sharpen_kernel)
+                # layout = cv2.Sobel(layout,cv2.CV_8U,0,1, ksize=5) 
+                # layout = cv2.Laplacian(layout, cv2.CV_8U) 
+                # (thresh, crop) = cv2.threshold(crop, 128, 255, cv2.THRESH_BINARY)
                 recompute = True
 
             if (self.clahe_mode == "DYN" and len(crop_keypoints) < 10000) or self.clahe_mode == "ON":
+                
                 crop = self.clahe.apply(crop)
+                # sharpen_kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+                # crop = cv2.filter2D(crop, -1, sharpen_kernel)
+                # crop = cv2.Sobel(crop,cv2.CV_8U,0,1, ksize=5) 
+                # crop = cv2.Laplacian(crop, cv2.CV_8U) 
+
+                # (thresh, crop) = cv2.threshold(crop, 128, 255, cv2.THRESH_BINARY_INV)
                 recompute = True
         if recompute:
             crop_keypoints, crop_descriptors = self.feature_extractor(crop)

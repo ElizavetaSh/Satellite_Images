@@ -9,3 +9,12 @@ class SIFT(object):
     def __call__(self, img) -> Any:
         keypoints, descriptors = self.method.detectAndCompute(img, None)
         return keypoints, descriptors
+    
+class SURF(object):
+    def __init__(self) -> None:
+        self.method = cv2.SURF_create()
+
+    def __call__(self, img) -> Any:
+        keypoints, descriptors = self.method.detectAndCompute(img, None)
+        return keypoints, descriptors
+    

@@ -5,7 +5,8 @@ import cv2
 import numpy as np
 import pandas as pd
 import gdal
-
+from skimage.feature import canny
+from skimage.util import img_as_ubyte
 from restore_image import restore_pixels_4channel, restore_by_mean
 
 def filter_matches(kp1, kp2, matches, ratio=0.7):
@@ -158,9 +159,12 @@ def read_tif_by_channels(path, norm=False, size_scale=(1, 1), restore=False):
 
     h, w = img.shape[:2]
     scale_w, scale_h = size_scale
-
-    img = cv2.resize(img, (int(h * scale_h), int(w * scale_w)))
+    # edges = canny(img)
+    # img = img_as_ubyte(edges)
+    # img = cv2.resize(img, (int(h * scale_h), int(w * scale_w)))
     if norm:
         img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-
+    img = cv2.resize(img, (int(h * scale_h), int(w * scale_w)))
+      
+    # img = cv2.filter2D(img, -1, np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]]))
     return img
